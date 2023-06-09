@@ -1,0 +1,131 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creating 2 EC2 instances and attaching EBS volume to it and s3 bucket,IAM role,IAM policy and NLB
+
+
+Resources:
+  khanEC2Instance1:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: us-east-1a
+      ImageId: ami-024fc608af8f886bc
+      InstanceType: t2.micro
+      KeyName: khan-ec2
+      Tags:
+        - Key: Name
+          Value: khan-ec2-instance1
+
+  khanEC2Instance2:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: us-east-1a
+      ImageId: ami-024fc608af8f886bc
+      InstanceType: t2.micro
+      KeyName: khan-ec2
+      Tags:
+        - Key: Name
+          Value: khan-ec2-instance2
+
+  khanEBSvolume1:
+    Type: AWS::EC2::Volume
+    Properties:
+      Size: 5
+      AvailabilityZone: !GetAtt khanEC2Instance1.AvailabilityZone
+    
+  MountPoint1:
+    Type: AWS::EC2::VolumeAttachment
+    Properties:
+      InstanceId: !Ref khanEC2Instance1
+      VolumeId: !Ref khanEBSvolume1
+      Device: /dev/sdh
+
+  khanEBSvolume2:
+    Type: AWS::EC2::Volume
+    Properties:
+      Size: 5 
+      AvailabilityZone: !GetAtt khanEC2Instance2.AvailabilityZone
+    
+  MountPoint2:
+    Type: AWS::EC2::VolumeAttachment
+    Properties:
+      InstanceId: !Ref khanEC2Instance2
+      VolumeId: !Ref khanEBSvolume2
+      Device: /dev/sdh
+
+  khanS3bucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      BucketName: "khan07-s3bucket"
+
+  khanS3Role:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: khan-s3-access-policy
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - s3.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Description: Role to provide access to S3
+      Policies:
+        - PolicyName: khan-read-write-s3-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                - s3:GetBucketLocation
+                - s3:ListAllMyBuckets
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                - s3:ListBucket
+                Resource:
+                - arn:aws:s3:::test
+              - Effect: Allow
+                Action:
+                - s3:PutObject
+                - s3:GetObject
+                - s3:DeleteObject
+                Resource:
+                - !Sub arn:aws:s3:::${khanS3bucket}
+                - !Sub arn:aws:s3:::${khanS3bucket}/*
+
+  khanELB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: khan-elb1
+      IpAddressType: ipv4
+      Type: network
+      Subnets: 
+        - subnet-06c360ab90c83135d
+        - subnet-090475aa4a20d430d
+
+  khanTG:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties: 
+      Name: khan-TG1
+      Port: 80
+      Protocol: TCP
+      TargetType: instance
+      Targets: 
+        - Id: !Ref khanEC2Instance1
+          Port: 80
+          #AvailabilityZone: us-east-1a
+        - Id: !Ref khanEC2Instance2
+          Port: 80
+          #AvailabilityZone: us-east-1a
+      VpcId: vpc-0db0049fee89042a5
+
+  khanNLBListener:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref khanTG
+      LoadBalancerArn: !Ref khanELB
+      Port: 80
+      Protocol: TCP
