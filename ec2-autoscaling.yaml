@@ -1,1 +1,65 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creating Auto scaling 
+
+
+Resources:
+  khanlaunchtemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties: 
+      LaunchTemplateName: khan-CF-launchtemplate
+      LaunchTemplateData:
+        ImageId: ami-09988af04120b3591
+        InstanceType: t2.micro
+        KeyName: khan-ec2
+
+  khannlbcf:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: khan-nlb1
+      Type: network
+      Scheme: internet-facing 
+      Subnets: 
+        - subnet-06c360ab90c83135d
+        - subnet-090475aa4a20d430d
+
+  khantgcf:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties: 
+      Name: khan-TG-CF1
+      Port: 80
+      Protocol: TCP
+      VpcId: vpc-0db0049fee89042a5
+
+  khanNLBListener:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref khantgcf
+      LoadBalancerArn: !Ref khannlbcf
+      Port: 80
+      Protocol: TCP
+
+  khanASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: khan-Autoscaling-CF
+      LaunchTemplate:
+        LaunchTemplateId: !Ref khanlaunchtemplate
+        Version: !GetAtt khanlaunchtemplate.LatestVersionNumber
+      TargetGroupARNs:
+        - !Ref khantgcf
+      MinSize: 1
+      MaxSize: 5
+      DesiredCapacity: 2
+      AvailabilityZones: 
+      - us-east-1a
+      - us-east-1b
+      MetricsCollection:
+      - Granularity: 1Minute
+
+  
+      
+    
+        
 
