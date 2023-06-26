@@ -2,12 +2,27 @@ pipeline {
     agent any
 
     stages {
-        stage('Build and Deploy') {
+        stage('Build') {
             steps {
-                sh 'sudo docker build -t maazinkhan/myapp:3.0 .'
                 sh 'sudo chmod 666 /var/run/docker.sock'
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-                sh 'docker push maazinkhan/myapp:3.0'         
+                // Clone the repository containing the Dockerfile
+                git url: 'https://github.com/devxpace-org/khan-repository'
+
+                // Build the Docker image
+                sh 'docker build -t maazinkhan/myapp:1.0 .'
+
+            
+            }
+        }
+        stage('Push to Docker Hub') {
+            steps {
+                // Log in to Docker Hub
+                withCredentials([usernamePassword(credentialsId: 'd8a4a2a4-7e5c-48ba-a2ae-bf464659edaa', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
+                    sh 'docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD'
+                }
+
+                // Push the Docker image to Docker Hub
+                sh 'docker push maazinkhan/myapp:1.0'
             }
         }
     }
