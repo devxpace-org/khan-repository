@@ -1,2 +1,10 @@
-FROM ubuntu:20.04
-RUN echo "testing" >/tmp/testfile
+FROM node:20-alpine
+
+COPY package.json /app/devxpace/
+COPY src /app/devxpace/
+
+WORKDIR /app/devxpace/
+
+RUN npm install
+
+ENTRYPOINT ["node", "helloworld.js"]
