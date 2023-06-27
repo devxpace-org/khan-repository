@@ -9,7 +9,7 @@ pipeline {
                 git url: 'https://github.com/devxpace-org/khan-repository'
 
                 // Build the Docker image
-                sh 'sudo docker build -t maazinkhan/myapp:nicejob-${version} .'
+                sh 'sudo docker build -t maazinkhan/myapp:helloworld-${version} .'
                 
 
             
@@ -23,7 +23,7 @@ pipeline {
                 }
 
                 // Push the Docker image to Docker Hub
-                sh 'sudo docker push maazinkhan/myapp:nicejob-${version}'
+                sh 'sudo docker push maazinkhan/myapp:helloworld-${version}'
             }
         }
     }
