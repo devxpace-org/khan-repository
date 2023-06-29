@@ -9,7 +9,7 @@ pipeline {
                 git url: 'https://github.com/devxpace-org/khan-repository'
 
                 // Build the Docker image
-                sh 'sudo docker build -t maazinkhan/karthik:1.0'
+                sh 'sudo docker build -t maazinkhan/karthik:1.0 .'
                 
 
             
