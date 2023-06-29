@@ -1,9 +1,9 @@
 FROM node:20-alpine
 
-COPY package.json /app/messi/
-COPY src /app/messi/
+COPY package.json /app/ney/
+COPY src /app/ney/
 
-WORKDIR /app/messi/
+WORKDIR /app/ney/
 
 RUN npm install
 
