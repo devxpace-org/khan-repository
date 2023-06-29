@@ -1,9 +1,9 @@
 FROM node:20-alpine
 
-COPY package.json /app/helloworld/
-COPY src /app/helloworld/
+COPY package.json /app/karthik/
+COPY src /app/karthik/
 
-WORKDIR /app/helloworld/
+WORKDIR /app/karthik/
 
 RUN npm install
 
