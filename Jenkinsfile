@@ -9,7 +9,7 @@ pipeline {
                 git url: 'https://github.com/devxpace-org/khan-repository'
 
                 // Build the Docker image
-                sh 'sudo docker build -t maazinkhan/karthik:1.0 .'
+                sh 'sudo docker build -t maazinkhan/khan:1.0 .'
                 
 
             
@@ -23,7 +23,7 @@ pipeline {
                 }
 
                 // Push the Docker image to Docker Hub
-                sh 'sudo docker push maazinkhan/karthik:1.0'
+                sh 'sudo docker push maazinkhan/khan:1.0'
             }
         }
     }
