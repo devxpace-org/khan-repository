@@ -1,9 +1,9 @@
 FROM node:20-alpine
 
-COPY package.json /app/shahab/
-COPY src /app/shahab/
+COPY package.json /app/ronaldo/
+COPY src /app/ronaldo/
 
-WORKDIR /app/shahab/
+WORKDIR /app/ronaldo/
 
 RUN npm install
 
